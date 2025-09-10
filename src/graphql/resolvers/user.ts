@@ -4,10 +4,9 @@ import bcrypt from "bcryptjs"
 import { generateToken } from './../../services/authServices.js';
 import type { Context } from "../context.js";
 
-
 export default {
     Query: {
-        me: async (_: any, __: any, context: Context) => {
+        me: async (_: any, __: any, context:Context) => {
             if(!context.user) throw new GraphQLError("user not authenticated")
             const user = await User.findOne()
             if (!user) throw new GraphQLError("no user found")

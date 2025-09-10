@@ -6,7 +6,7 @@ import { GraphQLError } from "graphql";
 
 export type Context = {
     request: Request
-    user?: typeof User
+    user?: InstanceType<typeof User>;
 }
 
 export const context = async (initialContext: YogaInitialContext): Promise<Context> => {
@@ -16,17 +16,28 @@ export const context = async (initialContext: YogaInitialContext): Promise<Conte
     const authHeader = request.headers.get("authorization") || '';
     const token = authHeader.replace("Bearer ", "").trim()
 
-    const decoded = verifyToken(token);
-
-    // if token invalid → return context without user
-    if (typeof decoded === 'string' || !('id' in decoded)) {
+    // return context when no token found
+    if (!token) {
         return { request };
     }
 
-    // fetch user from DB
-    const user = await User.find(decoded.id);
+    try {
 
-    if (!user) throw new GraphQLError('No user found');
+        const decoded = verifyToken(token);
 
-    return { request };
+        // if token invalid → return context without user
+        if (typeof decoded === 'string' || !('id' in decoded)) {
+            return { request };
+        }
+
+        // fetch user from DB
+        const user = await User.findById(decoded.id);
+
+
+        if (!user) throw new GraphQLError('No user found');
+        
+        return { request, user };
+    } catch (error) {
+        return { request };
+    }
 }
