@@ -10,10 +10,14 @@ export type Context = {
 }
 
 export const context = async (initialContext: YogaInitialContext): Promise<Context> => {
-    
+
+    //get the HTTP request object from YogaInitialContext.
     const request = initialContext.request
 
+    //get authorization header
     const authHeader = request.headers.get("authorization") || '';
+
+
     const token = authHeader.replace("Bearer ", "").trim()
 
     // return context when no token found
@@ -23,6 +27,7 @@ export const context = async (initialContext: YogaInitialContext): Promise<Conte
 
     try {
 
+        //extract user ID from jsonwebtoken
         const decoded = verifyToken(token);
 
         // if token invalid → return context without user
@@ -37,7 +42,9 @@ export const context = async (initialContext: YogaInitialContext): Promise<Conte
         if (!user) throw new GraphQLError('No user found');
         
         return { request, user };
-    } catch (error) {
+    } catch (error : any) {
+        // if the token is invalid, log the error and return an empty context object
+        console.error('TOKEN_VERIFICATION_ERROR:', error.message);
         return { request };
     }
 }

@@ -1,19 +1,26 @@
-import { GraphQLError } from "graphql"
-import User from "../../models/User.js"
 import bcrypt from "bcryptjs"
-import { generateToken } from './../../services/authServices.js';
-import type { Context } from "../context.js";
+import { GraphQLError } from "graphql"
+import User from "../models/User.js";
+import { generateToken } from "../services/authServices.js";
+import type { Context } from "./context.js";
+import { searchMovie } from "../services/moviesService.js";
 
-export default {
+export const resolvers = {
     Query: {
         me: async (_: any, __: any, context:Context) => {
             if(!context.user) throw new GraphQLError("user not authenticated")
             const user = await User.findOne()
             if (!user) throw new GraphQLError("no user found")
             return user
+        },
+        searchMovies: async (_: any, arg: { query: string, page: number }, context: Context) => {
+            if(!context.user) throw new GraphQLError("user not authenticated")
+            const { query, page } = arg
+            return await searchMovie(query, page);
         }
     },
     Mutation: {
+        //SIGNUP MUTATION
         signup: async (_: any, { input }: any) => {
             //destructure input
             const { name, email, password, city } = input
@@ -37,6 +44,8 @@ export default {
 
             return { token, user }
         },
+
+        // LOGIN MUTATION
         login: async (_: any, { input }: any) => {
             const { email, password } = input
 
@@ -51,6 +60,7 @@ export default {
             const token = generateToken(user.id)
             
             return { token, user }
-        }
+        },
+        
     }
 }
