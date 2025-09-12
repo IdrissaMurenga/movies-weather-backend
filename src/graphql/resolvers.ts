@@ -3,13 +3,15 @@ import { GraphQLError } from "graphql"
 import User from "../models/User.js";
 import { generateToken } from "../services/authServices.js";
 import type { Context } from "./context.js";
-import { searchMovie } from "../services/moviesService.js";
+import { checkMovie, searchMovie } from "../services/moviesService.js";
+import Favorites from "../models/Favorite.js";
+import Movie from "../models/Movie.js";
 
 export const resolvers = {
     Query: {
         me: async (_: any, __: any, context:Context) => {
             if(!context.user) throw new GraphQLError("user not authenticated")
-            const user = await User.findOne()
+            const user = await User.findOne({ user: context.user.id })
             if (!user) throw new GraphQLError("no user found")
             return user
         },
@@ -61,6 +63,27 @@ export const resolvers = {
             
             return { token, user }
         },
-        
+        addFavorite: async (_: any, { imdbID }: { imdbID: string }, context: Context) => {
+            if (!context.user) throw new GraphQLError("user not authenticated")
+            const movie = await checkMovie(imdbID)
+            
+            const favoriteMovie = await Favorites.findOneAndUpdate(
+                { user: context.user.id, movie: movie.id },
+                { $setOnInsert: { user: context.user.id, movie: movie.id } },
+                { upsert: true, new: true }
+            )
+            return {
+                id: favoriteMovie.id,
+                movie: favoriteMovie.movie
+            }
+        },
+        removeFavorite: async (_: any, { imdbID }: { imdbID: string }, context: Context) => {
+            if (!context.user) throw new GraphQLError("user not authenticated")
+            const movie = await Movie.findOne({ provider: "omdb", imdbID });
+            if (!movie) return false;
+            const deleteMovie = await Favorites.deleteOne({ user: context.user._id, movie: movie._id });
+                
+            return deleteMovie.deletedCount === 1;
+        },
     }
 }
