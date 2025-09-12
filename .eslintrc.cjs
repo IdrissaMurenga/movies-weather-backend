@@ -4,6 +4,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: "module",
+    project: "./tsconfig.json", // let eslint read your tsconfig
   },
   env: {
     node: true,
@@ -13,10 +14,9 @@ module.exports = {
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended", // integrates prettier rules
+    "plugin:prettier/recommended"
   ],
   rules: {
-    // Customize rules if you want
     "prettier/prettier": "error",
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": ["warn"],

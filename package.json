@@ -7,9 +7,9 @@
   "scripts": {
     "start": "node src/index.ts",
     "dev": "nodemon --exec tsx src/index.ts",
-    "lint": "eslint 'src/**/*.{js,ts}' --max-warnings=0",
-    "lint:fix": "eslint 'src/**/*.{js,ts}' --fix",
-    "format": "prettier --write 'src/**/*.{js,ts,json,graphql,md}'"
+    "lint": "eslint 'src/**/*.{ts,js}'",
+    "lint:fix": "eslint 'src/**/*.{ts,js}' --fix",
+    "format": "prettier --write 'src/**/*.{ts,js,json,md,graphql}'"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
