@@ -6,64 +6,104 @@ import type { Context } from "./context.js";
 import { checkMovie, searchMovie } from "../services/moviesService.js";
 import Favorites from "../models/Favorite.js";
 import Movie from "../models/Movie.js";
+import { authCheck, InputType } from "../services/authServices.js";
 
 export const resolvers = {
     Query: {
-        me: async (_: any, __: any, context:Context) => {
-            if(!context.user) throw new GraphQLError("user not authenticated")
-            const user = await User.findOne({ user: context.user.id })
-            if (!user) throw new GraphQLError("no user found")
-            return user
+        //QUERY TO GET LOGGED IN USER DATA
+        me: async (_: unknown, __: unknown, context: Context) => {
+            
+            //check if user is authenticated
+            authCheck(context)
+
+            try {
+                //find if user exist with their id
+                const user = await User.findById({ user: context?.user?.id })
+
+                // if user doesn't exist show an error of user not found
+                if (!user) throw new GraphQLError("no user found")
+
+                // return user data if exist
+                return user
+            } catch (error) {
+                throw new GraphQLError("error occured")
+            }
         },
-        searchMovies: async (_: any, arg: { query: string, page: number }, context: Context) => {
-            if(!context.user) throw new GraphQLError("user not authenticated")
+        // QUERY FOR SEARCHING MOVIES
+        searchMovies: async (_: unknown, arg: { query: string, page: number }, context: Context) => {
+            authCheck(context)
+
+            //destruct movie params with query of movie and pages to be given
             const { query, page } = arg
-            return await searchMovie(query, page);
+
+            // calling search movie function to return searched movie in omdb API
+            const movies = await searchMovie(query, page)
+
+            // return movies
+            return movies
         }
     },
     Mutation: {
         //SIGNUP MUTATION
-        signup: async (_: any, { input }: any) => {
-            //destructure input
+        signup: async (_: unknown, { input }: InputType) => {
+            //destructure signup input object
             const { name, email, password, city } = input
 
-            // find user by email in db
-            const existingUser = await User.findOne({ email });
+            try {
+                //find user by email in db
+                const existingUser = await User.findOne({ email });
 
-            //check if user exists
-            if (existingUser) throw new GraphQLError("User already exists");
+                //check if user exists throw error of existing user with same email
+                if (existingUser) throw new GraphQLError("User already exists");
 
-            // hash password
-            const hashedPassword = await bcrypt.hash(password, 10);
+                //hash user's password to make it hard to hack it
+                const hashedPassword = await bcrypt.hash(password, 10);
 
-            // create new user
-            const user = new User({ name, email, password: hashedPassword, city })
+                // create a user with hashed password
+                const user = new User({ name, email, password: hashedPassword, city })
 
-            const token = generateToken(user.id)
+                // generate token for the user with they id
+                const token = generateToken(user.id)
 
-            // save new user to db
-            await user.save()
+                // save user to database
+                await user.save()
 
-            return { token, user }
+                //return user object and user's token
+                return { token, user }
+            } catch (error) {
+                
+            }
         },
 
         // LOGIN MUTATION
-        login: async (_: any, { input }: any) => {
-            const { email, password } = input
+        login: async (_: unknown, { input }: InputType) => {
 
-            // find user by email in db
-            const user = await User.findOne({ email })
-            if (!user) throw new GraphQLError("User not found")
-            
-            // check if password matches
-            const isMatch = await bcrypt.compare(password, user.password)
-            if (!isMatch) throw new GraphQLError("Invalid credentials")
-            
-            const token = generateToken(user.id)
-            
-            return { token, user }
+            //destructure login input object
+            const { email, password } = input;
+
+            try {
+                // find user by email in db
+                const user = await User.findOne({ email });
+    
+                // no user in databse throw a no user found error
+                if (!user) throw new GraphQLError("User not found");
+    
+                // check if typed password match with the stored password
+                const isMatch = await bcrypt.compare(password, user.password);
+    
+                // if paswword not throw error
+                if (!isMatch) throw new GraphQLError("Incorrect Password");
+    
+                // generate token for the logged in user
+                const token = generateToken(user.id);
+    
+                // return user object and user token
+                return { token, user };
+            } catch (error) {
+                
+            }
         },
-        addFavorite: async (_: any, { imdbID }: { imdbID: string }, context: Context) => {
+        addFavorite: async (_: unknown, { imdbID }: { imdbID: string }, context: Context) => {
             if (!context.user) throw new GraphQLError("user not authenticated")
             const movie = await checkMovie(imdbID)
             

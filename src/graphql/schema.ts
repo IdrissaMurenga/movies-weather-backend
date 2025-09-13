@@ -1,5 +1,6 @@
 export const typeDefs = `
 
+# USER TYPE
     type User {
         id:ID!
         name:String!
@@ -7,6 +8,7 @@ export const typeDefs = `
         city:String!
     }
 
+# MOVIES TYPE
     type Movie {
         id: ID!
         title: String!
@@ -15,26 +17,32 @@ export const typeDefs = `
         type: String!
         poster: String
     }
+
+# FAVORITE TYPE
     type Favorite {
         id: ID!
         movie: Movie!
     }
 
+# PAYLOAD TYPE
     type AuthPayload {
         user: User
         token: String
     }
     
+#SEARCH MOVIE TYPE
     type SearchResult {
         movies: [Movie!]!
         total: Int!
     }
 
+# QEURY TYPE
     type Query {
         me: User!
         searchMovies(query: String!, page: Int = 1): SearchResult!
     }
 
+# MUTATIONS TYPE
     type Mutation {
         signup(input: SignupInput!): AuthPayload!
         login(input: LoginInput!): AuthPayload!
@@ -42,6 +50,7 @@ export const typeDefs = `
         removeFavorite(imdbID: String): Boolean!
     }
 
+#INPUTS
     input SignupInput {
         name: String!
         email: String!
