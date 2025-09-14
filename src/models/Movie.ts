@@ -14,7 +14,8 @@ const movieSchema = new Schema({
       required: true,
       trim: true,
       index: true
-    }, 
+    },
+    imdbId: { type: String, trim: true, index: true },
     title: {
       type: String,
       required: true,

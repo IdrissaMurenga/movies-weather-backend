@@ -43,6 +43,15 @@ export const resolvers = {
 
             // return movies
             return movies
+        },
+        getWeather: async (_: unknown, __: unknown, context: Context) => {
+            authCheck(context)
+            const user = await User.findById(context.user?.id)
+            
+            const city = user?.city; // string | undefined
+            if (!city) throw new GraphQLError("User city is missing");
+
+            return getCurrentWeather(city)
         }
     },
     User: {

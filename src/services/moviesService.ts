@@ -51,7 +51,7 @@ export const upsertMovie = async (imdbID: string) => {
     if (!imdbID) throw new GraphQLError("imdbID is required")
     if (!apikey) throw new GraphQLError("omdb key is missing")
     
-    const movieExist = await Movie.findOne({ provider: "omdb", omdbId: imdbID })
+    const movieExist = await Movie.findOne({ provider: "omdb", $or: [{ imdbId: imdbID }, { omdbId: imdbID }] })
     if (movieExist) return movieExist
 
     const url = `${provider}?apikey=${apikey}&i=${encodeURIComponent(imdbID)}`;
@@ -65,6 +65,7 @@ export const upsertMovie = async (imdbID: string) => {
         {
             $setOnInsert: {
                 provider: "omdb",
+                imdbId: data.imdbID,
                 omdbId: data.imdbID,
                 title: data.Title,
                 year: data.Year,

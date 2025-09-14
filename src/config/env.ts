@@ -10,5 +10,6 @@ export const configEnv = {
     MOVIE_PROVIDER: process.env.MOVIE_PROVIDER,
     OMDB_API_KEY: process.env.OMDB_API_KEY,
     OPEN_WEATHER_KEY: process.env.OPEN_WEATHER_API_KEY,
-    WEATHER_PROVIDER: process.env.WEATHER_PROVIDER
+    WEATHER_PROVIDER: process.env.WEATHER_PROVIDER,
+    FRONTEND_URL: process.env.FRONTEND_URL
 }
