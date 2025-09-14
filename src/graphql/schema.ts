@@ -6,6 +6,7 @@ export const typeDefs = `
         name:String!
         email:String!
         city:String!
+        weather: Weather!
     }
 
 # MOVIES TYPE
@@ -31,23 +32,40 @@ export const typeDefs = `
     }
     
 #SEARCH MOVIE TYPE
-    type SearchResult {
+    type Search {
         movies: [Movie!]!
         total: Int!
     }
-
+# WEATHER TYPE
+    type Weather {
+        city: String!
+        country: String
+        description: String!
+        icon: String!
+        iconUrl: String!
+        temp: Float!
+        feelsLike: Float!
+        pressure: Int!
+        humidity: Int!
+        windSpeed: Float!
+        windDeg: Int
+        sunrise: Int
+        sunset: Int
+        dt: Int!
+    }
 # QEURY TYPE
     type Query {
         me: User!
-        searchMovies(query: String!, page: Int = 1): SearchResult!
+        getWeather: Weather!
+        searchMovies(query: String!, page: Int = 1): Search!
     }
 
 # MUTATIONS TYPE
     type Mutation {
         signup(input: SignupInput!): AuthPayload!
         login(input: LoginInput!): AuthPayload!
-        addFavorite(imdbID: String): Favorite!
-        removeFavorite(imdbID: String): Boolean!
+        addFavorite(imdbID: String!): Favorite!
+        removeFavorite(imdbID: String!): Boolean!
     }
 
 #INPUTS
@@ -62,4 +80,4 @@ export const typeDefs = `
         email: String!
         password: String!
     }
-`
+`;

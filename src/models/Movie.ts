@@ -9,7 +9,7 @@ const movieSchema = new Schema({
         default: "omdb",
         index: true
     },
-    imdbID: {
+    omdbId: {
       type: String,
       required: true,
       trim: true,
@@ -34,7 +34,7 @@ const movieSchema = new Schema({
     },
 })
 
-movieSchema.index({ provider: 1, imdbID: 1 }, { unique: true })
+movieSchema.index({ provider: 1, omdbId: 1 }, { unique: true })
 
 const Movie = model("Movie", movieSchema)
 

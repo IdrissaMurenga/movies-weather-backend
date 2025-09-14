@@ -3,6 +3,7 @@ import { configEnv } from '../config/env.js'
 import { GraphQLError } from 'graphql'
 import type { Context } from '../graphql/context.js'
 
+
 export interface InputType {
     input:{
         name: string
@@ -29,5 +30,5 @@ export const verifyToken = (token: string) => {
 }
 
 export const authCheck = (context: Context) => {
-    if(!context?.user) throw new GraphQLError("user not authenticated")
+    if(!context.user) throw new GraphQLError("user not authenticated")
 }

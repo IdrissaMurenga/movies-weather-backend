@@ -40,48 +40,40 @@ export const searchMovie = async (query: string, page: number = 1) => {
         const total = Number(data.totalResults || 0);
         const hasMore = page * 10 < total
 
-
         return {movies, total, page, hasMore}
+        
     } catch (error: any) {
         throw new GraphQLError(error.message)
     }
 }
 
+export const upsertMovie = async (imdbID: string) => {
+    if (!imdbID) throw new GraphQLError("imdbID is required")
+    if (!apikey) throw new GraphQLError("omdb key is missing")
+    
+    const movieExist = await Movie.findOne({ provider: "omdb", omdbId: imdbID })
+    if (movieExist) return movieExist
 
-export const checkMovie = async (imdbID: string) => {
+    const url = `${provider}?apikey=${apikey}&i=${encodeURIComponent(imdbID)}`;
 
-    // find user in databse
-    const findMovie = await Movie.findOne({ provider: "omdb", imdbID });
+    const res = await fetch(url)
+    if (!res.ok) throw new GraphQLError(`OMDb request failed (${res.status})`);
+    const data = await res.json()
 
-    if (findMovie) return findMovie;
-
-    // check if theres an omdb api key
-    if (!apikey) throw new GraphQLError("OMDb API key missing");
-
-    // fetch movies from omdb provider
-    const res = await fetch(`${provider}?apikey=${apikey}&i=${encodeURIComponent(imdbID)}`);
-
-    if (!res.ok) throw new GraphQLError(`OMDb detail request failed (${res.status})`);
-
-    const data = await res.json();
-
-    if (data.Response === "False") throw new GraphQLError(data.Error || "Movie not found on OMDb");
-
-  // 3) Upsert movie
-    const existMovie = await Movie.findOneAndUpdate(
-        { provider: "omdb", imdbID },
+    const movie = await Movie.findOneAndUpdate(
+        { provider: "omdb", omdbId: imdbID },
         {
             $setOnInsert: {
                 provider: "omdb",
-                imdbID: data.imdbID,
-                title:  data.Title,
-                year:   data.Year,
-                type:   data.Type,
-                poster: data.Poster !== "N/A" ? "" : data.Poster,
-            },
+                omdbId: data.imdbID,
+                title: data.Title,
+                year: data.Year,
+                type: data.Type,
+                poster: data.Poster && data.Poster !== "N/A" ? data.Poster : ""
+            }
         },
-        { upsert: true, new: true }
-    );
+        { upsert: true, new: true, runValidators: true }
+    )
 
-    return existMovie!;
+    return movie
 }
