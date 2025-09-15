@@ -1,7 +1,6 @@
-import Movie from "../models/Movie.js";
-import Favorites from "../models/Favorite.js";
 import { GraphQLError } from "graphql";
 import { configEnv } from "../config/env.js";
+import Movie from "../models/Movie.js";
 
 const apikey = configEnv.OMDB_API_KEY
 const provider = configEnv.MOVIE_PROVIDER
@@ -48,33 +47,40 @@ export const searchMovie = async (query: string, page: number = 1) => {
 }
 
 export const upsertMovie = async (imdbID: string) => {
-    if (!imdbID) throw new GraphQLError("imdbID is required")
-    if (!apikey) throw new GraphQLError("omdb key is missing")
-    
-    const movieExist = await Movie.findOne({ provider: "omdb", $or: [{ imdbId: imdbID }, { omdbId: imdbID }] })
-    if (movieExist) return movieExist
 
+    // 1) fetch movie detail from OMDb
     const url = `${provider}?apikey=${apikey}&i=${encodeURIComponent(imdbID)}`;
+    const res = await fetch(url);
 
-    const res = await fetch(url)
     if (!res.ok) throw new GraphQLError(`OMDb request failed (${res.status})`);
-    const data = await res.json()
 
+    const data = await res.json();
+
+    if (!data || data.Response === "False") {
+        throw new GraphQLError(data?.Error || "Movie not found on OMDb");
+    }
+
+    // 2) minimal fields
+    const id = String(data.imdbID || imdbID).trim();
+    const poster = data.Poster && data.Poster !== "N/A" ? data.Poster : "";
+
+    // 3) upsert the Movie (atomic)
     const movie = await Movie.findOneAndUpdate(
-        { provider: "omdb", omdbId: imdbID },
+        { provider: "omdb", imdbID: id },
         {
             $setOnInsert: {
                 provider: "omdb",
-                imdbId: data.imdbID,
-                omdbId: data.imdbID,
+                imdbID: id,
+            },
+            $set: {
                 title: data.Title,
                 year: data.Year,
                 type: data.Type,
-                poster: data.Poster && data.Poster !== "N/A" ? data.Poster : ""
-            }
+                ...(poster ? { poster } : {}),
+            },
         },
-        { upsert: true, new: true, runValidators: true }
-    )
+        { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
+    );
 
     return movie
 }

@@ -1,23 +1,23 @@
 import mongoose from "mongoose";
+import { ref } from "process";
 
-const { model, Schema } = mongoose
+const { Schema, model } = mongoose
 
 const favoriteSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: true 
+        required: true
     },
     movie: {
         type: Schema.Types.ObjectId,
         ref: 'Movie',
         required: true
     }
-})
+}, { timestamps: true })
 
-// Prevent duplicate favorites for a user
 favoriteSchema.index({ user: 1, movie: 1 }, { unique: true });
 
-const Favorites = model('favorite', favoriteSchema)
+const Favorite = model("Favorite", favoriteSchema)
 
-export default Favorites
+export default Favorite

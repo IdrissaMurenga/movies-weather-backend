@@ -1,41 +1,35 @@
 import mongoose from "mongoose";
 
-const { model, Schema } = mongoose;
+const { Schema, model } = mongoose
 
 const movieSchema = new Schema({
-    provider: {
-        type: String,
-        required: true,
-        default: "omdb",
-        index: true
-    },
-    omdbId: {
-      type: String,
-      required: true,
-      trim: true,
-      index: true
-    },
-    imdbId: { type: String, trim: true, index: true },
-    title: {
-      type: String,
-      required: true,
-      trim: true
-    },
-    year: {
-      type: String,
-      trim: true
-    },
-    type: {
-      type: String,
-      trim: true
-    },
-    poster: {
-      type: String,
-      trim: true
-    },
-})
+  provider: {
+    type: String,
+    required: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  imdbID: {
+    type: String,
+    required: true,
+  },
+  year: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+  },
+  poster: {
+    type: String,
+    required: true,
+  },
+}, { timestamps: true });
 
-movieSchema.index({ provider: 1, omdbId: 1 }, { unique: true })
+movieSchema.index({ provider: 1, imdbID: 1 }, { unique: true });
 
 const Movie = model("Movie", movieSchema)
 

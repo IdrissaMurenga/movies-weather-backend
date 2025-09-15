@@ -5,16 +5,17 @@ export const typeDefs = `
         id:ID!
         name:String!
         email:String!
-        city:String!
-        weather: Weather!
+        city:String
+        weather: Weather
     }
 
 # MOVIES TYPE
     type Movie {
         id: ID!
+        provider: String!
+        imdbID: String!
         title: String!
         year: String!
-        imdbID: String!
         type: String!
         poster: String
     }
@@ -22,6 +23,7 @@ export const typeDefs = `
 # FAVORITE TYPE
     type Favorite {
         id: ID!
+        user: ID!
         movie: Movie!
     }
 

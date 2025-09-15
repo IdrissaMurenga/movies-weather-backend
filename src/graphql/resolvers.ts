@@ -1,14 +1,12 @@
 import bcrypt from "bcryptjs"
-import { GraphQLError } from "graphql"
 import User from "../models/User.js";
-import { generateToken } from "../services/authServices.js";
+import { GraphQLError } from "graphql"
 import type { Context } from "./context.js";
-import { searchMovie } from "../services/moviesService.js";
-import Favorites from "../models/Favorite.js";
-import Movie from "../models/Movie.js";
+import { searchMovie, upsertMovie } from "../services/moviesService.js";
+import { generateToken } from "../services/authServices.js";
 import { authCheck, InputType } from "../services/authServices.js";
-import { upsertMovie } from "../services/moviesService.js";
 import { getCurrentWeather } from "../services/weatherServices.js";
+import Favorite from "../models/Favorite.js";
 
 export const resolvers = {
     Query: {
@@ -49,15 +47,20 @@ export const resolvers = {
             const user = await User.findById(context.user?.id)
             
             const city = user?.city; // string | undefined
-            if (!city) throw new GraphQLError("User city is missing");
+            if (!city) return null
 
             return getCurrentWeather(city)
         }
     },
     User: {
         weather: async (parent: any) => {
-            if (!parent.city) throw new GraphQLError("User city is missing");
-            return getCurrentWeather(parent.city);
+            try {
+                if (!parent.city) return null; // ← do not throw
+                return await getCurrentWeather(parent.city);
+            } catch (e) {
+                console.error("weather resolver error:", e);
+                return null; // ← swallow to avoid bubbling
+            }
         },
     },
     Mutation: {
@@ -88,7 +91,7 @@ export const resolvers = {
                 //return user object and user's token
                 return { token, user }
             } catch (error) {
-                
+                console.error('Signup error')
             }
         },
 
@@ -117,22 +120,21 @@ export const resolvers = {
                 // return user object and user token
                 return { token, user };
             } catch (error) {
-                
+                console.error("login error")
             }
         },
         addFavorite: async (_: unknown, { imdbID }: { imdbID: string }, context: Context) => {
-            
-            authCheck(context)
+            authCheck(context);
+            const movie = await upsertMovie(imdbID);
 
-            const movie = await upsertMovie(imdbID)
+          //upsert the Favorite
+            const favorite = await Favorite.findOneAndUpdate(
+                { user: context.user?.id, movie: movie._id },
+                { $setOnInsert: { user: context.user?.id, movie: movie._id } },
+                { upsert: true, new: true },
+            ).populate("movie");
 
-            const fav = await Favorites.findOneAndUpdate(
-                { user: context.user?.id, movie: movie.id },
-                { $setOnInsert: { user: context.user?.id, movie: movie.id } },
-                { upsert: true, new: true }
-            ).populate("movie")
-
-            return fav;
+            return favorite!;
         }
     }
 }
