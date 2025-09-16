@@ -47,13 +47,8 @@ export const typeDefs = `
         iconUrl: String!
         temp: Float!
         feelsLike: Float!
-        pressure: Int!
         humidity: Int!
         windSpeed: Float!
-        windDeg: Int
-        sunrise: Int
-        sunset: Int
-        dt: Int!
     }
 # QEURY TYPE
     type Query {

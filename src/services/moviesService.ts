@@ -60,23 +60,22 @@ export const upsertMovie = async (imdbID: string) => {
         throw new GraphQLError(data?.Error || "Movie not found on OMDb");
     }
 
-    // 2) minimal fields
-    const id = String(data.imdbID || imdbID).trim();
+
     const poster = data.Poster && data.Poster !== "N/A" ? data.Poster : "";
 
     // 3) upsert the Movie (atomic)
     const movie = await Movie.findOneAndUpdate(
-        { provider: "omdb", imdbID: id },
+        { provider: "omdb", imdbID },
         {
             $setOnInsert: {
                 provider: "omdb",
-                imdbID: id,
+                imdbID: data.imdbID,
             },
             $set: {
                 title: data.Title,
                 year: data.Year,
                 type: data.Type,
-                ...(poster ? { poster } : {}),
+                poster
             },
         },
         { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }

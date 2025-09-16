@@ -23,19 +23,14 @@ export const getCurrentWeather = async (city: string) => {
     const icon = w0.icon || "01d";
 
     return {
-        city,
+        city: data.name ?? city,
         country: data.sys?.country,
         description: w0.description || "clear sky",
         icon,
         iconUrl: `https://openweathermap.org/img/wn/${icon}@2x.png`,
         temp: Number(data.main?.temp ?? 0),
         feelsLike: Number(data.main?.feels_like ?? 0),
-        pressure: Number(data.main?.pressure ?? 0),
         humidity: Number(data.main?.humidity ?? 0),
         windSpeed: Number(data.wind?.speed ?? 0),
-        windDeg: typeof data.wind?.deg === "number" ? data.wind.deg : undefined,
-        sunrise: data.sys?.sunrise,
-        sunset: data.sys?.sunset,
-        dt: Number(data.dt ?? Math.floor(Date.now() / 1000)),
     };
 }

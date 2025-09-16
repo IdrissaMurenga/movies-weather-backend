@@ -7,6 +7,7 @@ import { generateToken } from "../services/authServices.js";
 import { authCheck, InputType } from "../services/authServices.js";
 import { getCurrentWeather } from "../services/weatherServices.js";
 import Favorite from "../models/Favorite.js";
+import Movie from "../models/Movie.js";
 
 export const resolvers = {
     Query: {
@@ -130,11 +131,26 @@ export const resolvers = {
           //upsert the Favorite
             const favorite = await Favorite.findOneAndUpdate(
                 { user: context.user?.id, movie: movie._id },
-                { $setOnInsert: { user: context.user?.id, movie: movie._id } },
+                { $setOnInsert: { user: context.user?.id, movie: movie.id } },
                 { upsert: true, new: true },
             ).populate("movie");
 
             return favorite!;
+        },
+        removeFavorite: async (_: unknown, { imdbID }: { imdbID: string }, context: Context) => {
+            authCheck(context)
+            if (!imdbID) throw new GraphQLError("imdbID is required");
+
+            // Find the favorited movie
+            const movie = await Movie.findOne({ provider: "omdb", imdbID: imdbID })
+            if (!movie) {
+                return true
+            }
+
+            // Remove the favorite edge for this user+movie
+            await Favorite.deleteOne({ user: context.user?.id, movie: movie.id,});
+
+            return true;
         }
     }
 }
