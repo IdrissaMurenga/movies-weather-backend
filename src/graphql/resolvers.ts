@@ -72,10 +72,12 @@ export const resolvers = {
 
             try {
                 //find user by email in db
-                const existingUser = await User.findOne({ email });
+                const existUser = await User.findOne({ email });
 
                 //check if user exists throw error of existing user with same email
-                if (existingUser) throw new GraphQLError("User already exists");
+                if (existUser) {
+                    throw new GraphQLError("user already exist",{ extensions: { code: "USER_ALREADY_EXIST" }})
+                }
 
                 //hash user's password to make it hard to hack it
                 const hashedPassword = await bcrypt.hash(password, 10);
@@ -92,7 +94,7 @@ export const resolvers = {
                 //return user object and user's token
                 return { token, user }
             } catch (error) {
-                console.error('Signup error')
+                throw new GraphQLError("unexpected error")
             }
         },
 
@@ -107,21 +109,27 @@ export const resolvers = {
                 const user = await User.findOne({ email });
     
                 // no user in databse throw a no user found error
-                if (!user) throw new GraphQLError("User not found");
+                if (!user) {
+                    throw new GraphQLError("User not found", { extensions: { code: "USER_NOT_FOUND" } })
+                }
     
                 // check if typed password match with the stored password
                 const isMatch = await bcrypt.compare(password, user.password);
     
-                // if paswword not throw error
-                if (!isMatch) throw new GraphQLError("Incorrect Password");
-    
+                // If password does not match, throw an error.
+                if (!isMatch) {
+                    throw new GraphQLError("incorrect password", {
+                        extensions: { code: "INCORRECT_PASSWORD" },
+                    });
+                }
+                
                 // generate token for the logged in user
                 const token = generateToken(user.id);
     
                 // return user object and user token
                 return { token, user };
             } catch (error) {
-                console.error("login error")
+                throw new GraphQLError("unexpected error")
             }
         },
         addFavorite: async (_: unknown, { imdbID }: { imdbID: string }, context: Context) => {
@@ -139,7 +147,9 @@ export const resolvers = {
         },
         removeFavorite: async (_: unknown, { imdbID }: { imdbID: string }, context: Context) => {
             authCheck(context)
-            if (!imdbID) throw new GraphQLError("imdbID is required");
+            if (!imdbID) throw new GraphQLError("imdbID is required", {
+                extensions: { code: "IMDBID_IS_REQUIRED" },
+            });
 
             // Find the favorited movie
             const movie = await Movie.findOne({ provider: "omdb", imdbID: imdbID })
