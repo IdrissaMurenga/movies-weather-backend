@@ -7,6 +7,7 @@ export const typeDefs = `
         email:String!
         city:String
         weather: Weather
+        favorites: [Favorite!]!
     }
 
 # MOVIES TYPE
@@ -49,12 +50,14 @@ export const typeDefs = `
         feelsLike: Float!
         humidity: Int!
         windSpeed: Float!
+        
     }
 # QEURY TYPE
     type Query {
         me: User!
         getWeather: Weather!
         searchMovies(query: String!, page: Int = 1): Search!
+        favoriteMovies: [Favorite!]!
     }
 
 # MUTATIONS TYPE

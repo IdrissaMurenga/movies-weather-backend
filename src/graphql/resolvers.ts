@@ -47,22 +47,34 @@ export const resolvers = {
             authCheck(context)
             const user = await User.findById(context.user?.id)
             
-            const city = user?.city; // string | undefined
-            if (!city) return null
+            const city = user?.city;
+            if (!city) {
+                throw new GraphQLError("City not set on user", { extensions: { code: "CITY_MISSING" } });
+            }
 
             return getCurrentWeather(city)
-        }
+        },
+        favoriteMovies: async (_: unknown, __: unknown, context: Context) => {
+            authCheck(context);
+            const userId = context.user?.id;
+            const fav = await Favorite.find({ user: userId }).populate("movie");
+            return fav;
+        },
     },
     User: {
         weather: async (parent: any) => {
             try {
-                if (!parent.city) return null; // ← do not throw
+                if (!parent.city) return null;
                 return await getCurrentWeather(parent.city);
             } catch (e) {
                 console.error("weather resolver error:", e);
-                return null; // ← swallow to avoid bubbling
+                return null;
             }
         },
+        favorites: async (parent: any) => {
+            const favs = await Favorite.find({ user: parent.id }).populate("movie");
+            return favs;
+        }
     },
     Mutation: {
         //SIGNUP MUTATION
@@ -157,7 +169,7 @@ export const resolvers = {
                 return true
             }
 
-            // Remove the favorite edge for this user+movie
+            // Remove movie from the favorite
             await Favorite.deleteOne({ user: context.user?.id, movie: movie.id,});
 
             return true;

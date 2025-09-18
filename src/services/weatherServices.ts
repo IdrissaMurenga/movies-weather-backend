@@ -9,7 +9,7 @@ export const getCurrentWeather = async (city: string) => {
     if (!city) throw new GraphQLError("City is required");
     if (!weatherKey) throw new GraphQLError("OPENWEATHER_API_KEY missing");
 
-    const url = `${weatherBase}weather?q=${encodeURIComponent(city)}&appid=${weatherKey}`;
+    const url = `${weatherBase}weather?q=${encodeURIComponent(city)}&appid=${weatherKey}&units=metric`;
     const res = await fetch(url);
     if (!res.ok)
     throw new GraphQLError(`OpenWeather request failed (${res.status})`);
