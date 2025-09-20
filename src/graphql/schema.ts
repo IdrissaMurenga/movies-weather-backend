@@ -50,7 +50,6 @@ export const typeDefs = `
         feelsLike: Float!
         humidity: Int!
         windSpeed: Float!
-        
     }
 # QEURY TYPE
     type Query {
