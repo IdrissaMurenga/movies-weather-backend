@@ -148,9 +148,9 @@ export const resolvers = {
             authCheck(context);
             const movie = await upsertMovie(imdbID);
 
-          //upsert the Favorite
+            //upsert the Favorite
             const favorite = await Favorite.findOneAndUpdate(
-                { user: context.user?.id, movie: movie._id },
+                { user: context.user?.id, movie: movie.id },
                 { $setOnInsert: { user: context.user?.id, movie: movie.id } },
                 { upsert: true, new: true },
             ).populate("movie");

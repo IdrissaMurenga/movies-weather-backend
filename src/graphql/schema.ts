@@ -38,6 +38,8 @@ export const typeDefs = `
     type Search {
         movies: [Movie!]!
         total: Int!
+        page: Int!
+        hasMore: Boolean!
     }
 # WEATHER TYPE
     type Weather {
@@ -51,7 +53,7 @@ export const typeDefs = `
         humidity: Int!
         windSpeed: Float!
     }
-# QEURY TYPE
+# QEURY
     type Query {
         me: User!
         getWeather: Weather!
@@ -59,7 +61,7 @@ export const typeDefs = `
         favoriteMovies: [Favorite!]!
     }
 
-# MUTATIONS TYPE
+# MUTATION
     type Mutation {
         signup(input: SignupInput!): AuthPayload!
         login(input: LoginInput!): AuthPayload!

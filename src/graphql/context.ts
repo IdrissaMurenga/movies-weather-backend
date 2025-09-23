@@ -17,7 +17,7 @@ export const context = async (initialContext: YogaInitialContext): Promise<Conte
     //get authorization header
     const authHeader = request.headers.get("authorization") || '';
 
-    // set token with baere authorization header
+    // set token with baerer authorization header
     const token = authHeader.replace("Bearer ", "").trim()
 
     // return request context when no token found

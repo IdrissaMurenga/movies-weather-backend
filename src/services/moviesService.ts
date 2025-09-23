@@ -48,7 +48,7 @@ export const searchMovie = async (query: string, page: number = 1) => {
 
 export const upsertMovie = async (imdbID: string) => {
 
-    // 1) fetch movie detail from OMDb
+    // 1) fetch movie detail from OMDb with id
     const url = `${provider}?apikey=${apikey}&i=${encodeURIComponent(imdbID)}`;
     const res = await fetch(url);
 
