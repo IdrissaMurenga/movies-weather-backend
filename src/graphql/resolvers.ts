@@ -13,19 +13,14 @@ export const resolvers = {
     Query: {
         //QUERY TO GET LOGGED IN USER DATA
         me: async (_: unknown, __: unknown, context: Context) => {
-            
             //check if user is authenticated
             authCheck(context)
-
             try {
-                //find if user exist with their id
-                const user = await User.findById(context.user?.id )
-
                 // if user doesn't exist show an error of user not found
-                if (!user) throw new GraphQLError("no user found")
+                if (!context.user) throw new GraphQLError("no user found")
 
                 // return user data if exist
-                return user
+                return context.user
             } catch (error) {
                 throw new GraphQLError("error occured")
             }
@@ -57,8 +52,7 @@ export const resolvers = {
         favoriteMovies: async (_: unknown, __: unknown, context: Context) => {
             authCheck(context);
             const userId = context.user?.id;
-            const fav = await Favorite.find({ user: userId }).populate("movie");
-            return fav;
+            return await Favorite.find({ user: userId });
         },
     },
     User: {
@@ -71,9 +65,14 @@ export const resolvers = {
                 return null;
             }
         },
-        favorites: async (parent: any) => {
-            const favs = await Favorite.find({ user: parent.id }).populate("movie");
-            return favs;
+        favorites: async (parent: any, _: unknown, context: Context) => {
+            const favs = context.loaders.favoritesByUserLoader.load(parent.id)
+            return favs
+        }
+    },
+    Favorite: {
+        movie: async (parent: any, _: unknown, context: Context) => {
+            return context.loaders.movieLoader.load(String(parent.movie))
         }
     },
     Mutation: {
@@ -153,7 +152,7 @@ export const resolvers = {
                 { user: context.user?.id, movie: movie.id },
                 { $setOnInsert: { user: context.user?.id, movie: movie.id } },
                 { upsert: true, new: true },
-            ).populate("movie");
+            )
 
             return favorite!;
         },

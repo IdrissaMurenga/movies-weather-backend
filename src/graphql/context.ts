@@ -39,16 +39,21 @@ export const context = async (initialContext: YogaInitialContext): Promise<Conte
     // set token with baerer authorization header
     const token = authHeader.replace("Bearer ", "").trim()
 
+    let user
+
     if (token) {
         try {
-            const decoded = verifyToken(token); // string | JwtPayload-like
+            const decoded = verifyToken(token); //JwtPayload
 
-            if (typeof decoded === "object" && decoded !== null && "id" in decoded) {
+            const hasId = !!decoded && typeof decoded === "object" && typeof decoded.id === "string";
+            if (hasId) {
 
                 // Only access decoded.id if we KNOW it exists
-                const user = await User.findById(decoded.id);
+                const findUser = await User.findById(decoded.id);
 
-                if (!user) throw new GraphQLError("No user found");
+                if (!findUser) throw new GraphQLError("No user found");
+
+                user = findUser;
             }
         } catch (err: any) {
             console.error("TOKEN_VERIFICATION_ERROR:", err.message);
@@ -62,5 +67,5 @@ export const context = async (initialContext: YogaInitialContext): Promise<Conte
     };
 
     // return context request and user
-    return { request, loaders };
+    return { request, user, loaders };
 }
