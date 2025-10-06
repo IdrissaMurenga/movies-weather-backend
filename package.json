@@ -7,9 +7,9 @@
   "scripts": {
     "start": "node src/index.ts",
     "dev": "nodemon --exec tsx src/index.ts",
-    "lint": "eslint 'src/**/*.{ts,js}'",
-    "lint:fix": "eslint 'src/**/*.{ts,js}' --fix",
-    "format": "prettier --write 'src/**/*.{ts,js,json,md,graphql}'"
+  "lint": "eslint src --ext .ts,.js",
+  "lint:fix": "eslint src --ext .ts,.js --fix",
+  "format": "prettier --write \"src/**/*.{ts,js,json,md,graphql}\""
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -27,9 +27,9 @@
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.3.1",
-    "@typescript-eslint/eslint-plugin": "^8.43.0",
-    "@typescript-eslint/parser": "^8.43.0",
-    "eslint": "^9.35.0",
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/parser": "^8.45.0",
+    "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "nodemon": "^3.1.10",
