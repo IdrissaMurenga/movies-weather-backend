@@ -140,8 +140,9 @@ export const resolvers = {
 
         // return user object and user token
         return { token, user };
+        
       } catch (error) {
-        throw new GraphQLError('unexpected error');
+        throw new GraphQLError(`'unexpected error' , ${error}`);
       }
     },
     addFavorite: async (_: unknown, { imdbID }: { imdbID: string }, context: Context) => {

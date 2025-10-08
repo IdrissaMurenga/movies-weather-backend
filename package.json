@@ -7,9 +7,13 @@
   "scripts": {
     "start": "node src/index.ts",
     "dev": "nodemon --exec tsx src/index.ts",
-  "lint": "eslint src --ext .ts,.js",
-  "lint:fix": "eslint src --ext .ts,.js --fix",
-  "format": "prettier --write \"src/**/*.{ts,js,json,md,graphql}\""
+    "build": "tsc",
+    "lint": "eslint src --ext .ts,.js",
+    "lint:fix": "eslint src --ext .ts,.js --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,json,md,graphql}\""
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
