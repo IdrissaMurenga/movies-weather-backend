@@ -9,10 +9,16 @@ import { configEnv } from './config/env.js';
 
 const app = express();
 
+// ⬇️ CORS — put this BEFORE app.use('/graphql', yoga)
+const selfOrigin =
+  process.env.BACKEND_URL ||
+  (process.env.KOYEB_PUBLIC_DOMAIN ? `https://${process.env.KOYEB_PUBLIC_DOMAIN}` : undefined);
+
 // ---- CORS ----
 const allowedOrigins = [
   configEnv.FRONTEND_URL,
   process.env.FRONTEND_URL_PREVIEW,
+  selfOrigin
 ].filter(Boolean) as string[];
 
 app.use(cors({
