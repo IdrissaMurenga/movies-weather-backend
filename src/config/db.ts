@@ -4,15 +4,16 @@ import type { Express } from 'express';
 
 const connectDB = (app: Express) => {
   try {
+    const PORT = Number(configEnv.PORT);
     //connect server to mongodb
     mongoose
       .connect(configEnv.MONGODB_URI as string)
       .then(() => {
-        console.log('MongoDB connected');
 
+        console.log('MongoDB connected');
         //starting and listening to the server
-        app.listen(configEnv.PORT, () =>
-          console.log(`Server running on port ${configEnv.PORT}....`)
+        app.listen(PORT,'0.0.0.0', () =>
+          console.log(`Server running on port ${PORT}....`)
         );
       })
       .catch((error) => {
