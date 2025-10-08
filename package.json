@@ -13,7 +13,7 @@
     "format": "prettier --write \"src/**/*.{ts,js,json,md,graphql}\""
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "20.x"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
