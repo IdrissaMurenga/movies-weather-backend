@@ -8,7 +8,6 @@ const connectDB = (app: Express) => {
     mongoose
       .connect(configEnv.MONGODB_URI as string)
       .then(() => {
-
         console.log('MongoDB connected');
         //starting and listening to the server
         app.listen(configEnv.PORT, () =>

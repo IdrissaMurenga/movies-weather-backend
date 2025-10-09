@@ -9,13 +9,13 @@ import { configEnv } from './config/env.js';
 
 const app = express();
 
-app.use(cors({
-  origin: configEnv.FRONTEND_URL,
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-
-
+app.use(
+  cors({
+    origin: configEnv.FRONTEND_URL,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 // ---- GraphQL ----
 const schema = createSchema({ typeDefs, resolvers });

@@ -22,7 +22,9 @@ export const resolvers = {
         // return user data if exist
         return context.user;
       } catch (error) {
-        throw new GraphQLError('error occured');
+        throw new GraphQLError(`error occured while fetching user data: ${error}`, {
+          extensions: { code: 'FETCH_USER_ERROR' },
+        });
       }
     },
     // QUERY FOR SEARCHING MOVIES
@@ -107,7 +109,7 @@ export const resolvers = {
         //return user object and user's token
         return { token, user };
       } catch (error) {
-        throw new GraphQLError('unexpected error');
+        throw new GraphQLError(`unexpected error: ${error}`);
       }
     },
 
@@ -140,7 +142,6 @@ export const resolvers = {
 
         // return user object and user token
         return { token, user };
-        
       } catch (error) {
         throw new GraphQLError(`'unexpected error' , ${error}`);
       }
